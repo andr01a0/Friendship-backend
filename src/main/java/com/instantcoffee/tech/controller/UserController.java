@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class UserController {
 
-    @PostMapping("/friendship")
+    /*@PostMapping("/friendship")
     String friendProtocol(@RequestBody String protocol){
         return
-    }
+    }*/
 }

@@ -1,15 +1,13 @@
 package com.instantcoffee.tech.entities;
-
 import javax.persistence.*;
 
 @Entity
-public class Friend {
+public class Relationship {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int friendId;
+    int relationshipId;
+    String type;
     String friendEmail;
-    String userEmail;
-    boolean pending;
     long friendIp;
 
     @ManyToOne

@@ -6,7 +6,9 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
+@Table
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int userId;
@@ -15,11 +17,7 @@ public class User {
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    List<Friend> friend;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    List<BlockedUser> blockedUsers;
+    List<Relationship> relationships;
 
 
 }
