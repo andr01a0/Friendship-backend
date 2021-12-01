@@ -1,6 +1,7 @@
 package com.instantcoffee.tech.authentication;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.instantcoffee.tech.entities.Relationship;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -27,17 +29,17 @@ public class User implements UserDetails {
   @Column(name = "user_id")
   private Long id;
 
-  @Column
-  @NonNull
-  private String email;
-
-  @Column
+  @Column(name = "username")
   @NonNull
   private String username;
 
   @Column
   @NonNull
   private String password;
+
+  @JsonIgnore
+  @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+  List<Relationship> relationships;
 
   // TODO(v3s1e): Implement roles
   @Override
@@ -81,7 +83,7 @@ public class User implements UserDetails {
 
   @Override
   public String toString() {
-    return "User [id=" + id + ", password=" + password + ", username=" + username + ", email=" + email + "]";
+    return "User [id=" + id + ", password=" + password + ", username=" + username;
   }
 
 }

@@ -29,7 +29,7 @@ public class JwtUserDetailsService implements UserDetailsService {
     User user = new User();
     user.setUsername(username);
     user.setPassword(this.passwordEncoder.encode(password));
-    user.setEmail(email);
+
 
     return this.userRepository.save(user);
   }
