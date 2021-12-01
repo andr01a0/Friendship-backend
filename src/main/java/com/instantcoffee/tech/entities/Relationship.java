@@ -1,11 +1,7 @@
 package com.instantcoffee.tech.entities;
-
-import com.instantcoffee.tech.authentication.User;
-
 import javax.persistence.*;
 
 @Entity
-@Table(name = "relationships")
 public class Relationship {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,7 +11,7 @@ public class Relationship {
     long friendIp;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "userId")
     User user;
 
 }
