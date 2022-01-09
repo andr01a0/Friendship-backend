@@ -12,41 +12,45 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class AuthenticationController {
 
-  private final JwtUserDetailsService jwtUserDetailsService;
+    private final JwtUserDetailsService jwtUserDetailsService;
 
-  @PostMapping("/signup")
-  /*@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Signed up successfully", content = {
-      @Content(mediaType = "application/json", schema = @Schema(implementation = SignUpResponse.class)) }),
-      @ApiResponse(responseCode = "401", description = "Incorrect credentials", content = { @Content }) })*/
-  public ResponseEntity<?> signUp(@RequestBody AuthenticationRequest authenticationRequest) {
-    String username = authenticationRequest.getUsername();
-    String password = authenticationRequest.getPassword();
-    String email = authenticationRequest.getEmail();
+    @PostMapping("/signup")
+    public ResponseEntity<?> signUp(@RequestBody AuthenticationRequest authenticationRequest) {
+        String username = authenticationRequest.getUsername();
+        String password = authenticationRequest.getPassword();
 
-    User user = this.jwtUserDetailsService.signUp(username, password, email);
+        User user = this.jwtUserDetailsService.signUp(username, password);
 
-    if (user == null) {
-      return ResponseEntity.status(401).build();
+        if (user == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        return ResponseEntity.ok(new SignUpResponse(user.getId(), user.getUsername()));
     }
 
-    return ResponseEntity.ok(new SignUpResponse(user.getId(), user.getUsername()));
-  }
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) {
+        String username = authenticationRequest.getUsername();
+        String password = authenticationRequest.getPassword();
 
-  @PostMapping("/login")
-  /*@ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Logged in successfully", content = {
-          @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class)) }),
-      @ApiResponse(responseCode = "401", description = "Incorrect credentials", content = { @Content }) })*/
-  public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) {
-    String username = authenticationRequest.getUsername();
-    String password = authenticationRequest.getPassword();
+        String token = this.jwtUserDetailsService.login(username, password);
+        System.out.println(token);
 
-    String token = this.jwtUserDetailsService.login(username, password);
+        if (token == null) {
+            return ResponseEntity.status(401).build();
+        }
 
-    if (token == null) {
-      return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(new LoginResponse(token));
     }
 
-    return ResponseEntity.ok(new LoginResponse(token));
-  }
+    @PostMapping("/check-token")
+    public ResponseEntity<?> checkToken(@RequestBody CheckTokenRequest checkTokenRequest) {
+        boolean isValid = this.jwtUserDetailsService.checkToken(checkTokenRequest.getToken());
+
+        if (isValid) {
+            return ResponseEntity.ok(new CheckTokenResponse("valid"));
+        }
+
+        return ResponseEntity.status(401).body(new CheckTokenResponse("invalid"));
+    }
 }

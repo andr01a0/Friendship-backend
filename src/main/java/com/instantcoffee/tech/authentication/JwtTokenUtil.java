@@ -56,7 +56,7 @@ public class JwtTokenUtil {
     byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
     Key key = Keys.hmacShaKeyFor(keyBytes);
     return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-        .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs * 1000))
+        .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs * 1000L))
         .signWith(key, SignatureAlgorithm.HS512).compact();
   }
 

@@ -41,7 +41,6 @@ public class User implements UserDetails {
   @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
   List<Relationship> relationships;
 
-  // TODO(v3s1e): Implement roles
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return null;
@@ -58,7 +57,7 @@ public class User implements UserDetails {
   }
 
   /*
-   * We (I) do not care about these :)
+   * We do not care about these :)
    */
   @Override
   public boolean isAccountNonExpired() {
