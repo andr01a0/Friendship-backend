@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class RelationshipController {
 
   @PostMapping
-  public ResponseEntity<String> relationshipProtocol(@RequestBody FriendshipProtocol friendshipProtocol) {
+  public ResponseEntity<String> relationshipProtocol(@RequestBody String protocolBody) {
+    FriendshipProtocol friendshipProtocol = new FriendshipProtocol(protocolBody);
     return ResponseEntity.ok("");
   }
 

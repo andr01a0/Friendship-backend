@@ -16,7 +16,7 @@ public class FriendshipProtocol {
   private String destinationHost;
   private String version;
 
-  FriendshipProtocol(String friendshipProtocol) {
+  public FriendshipProtocol(String friendshipProtocol) {
     String[] protocolData = friendshipProtocol.split("\\s+");
     System.out.println(Arrays.toString(protocolData));
   }
