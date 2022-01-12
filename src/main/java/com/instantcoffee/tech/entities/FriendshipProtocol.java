@@ -26,12 +26,12 @@ public class FriendshipProtocol {
 
   @Override
   public String toString() {
-    return this.method + " " +
-        this.sourceEmail + " " +
-        this.sourceHost + " " +
-        this.destinationEmail + " " +
-        this.destinationHost + " " +
-        this.version + "\r\n";
+    return getMethod() + " " +
+        getSourceEmail() + " " +
+        getSourceHost() + " " +
+        getDestinationEmail() + " " +
+        getDestinationHost() + " " +
+        getVersion() + "\r\n";
   }
 
 }
