@@ -3,8 +3,6 @@ package com.instantcoffee.tech.entities;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Arrays;
-
 @Getter
 @Setter
 public class FriendshipProtocol {
@@ -18,7 +16,22 @@ public class FriendshipProtocol {
 
   public FriendshipProtocol(String friendshipProtocol) {
     String[] protocolData = friendshipProtocol.split("\\s+");
-    System.out.println(Arrays.toString(protocolData));
+    this.method = protocolData[0];
+    this.sourceEmail = protocolData[1];
+    this.sourceHost = protocolData[2];
+    this.destinationEmail = protocolData[3];
+    this.destinationHost = protocolData[4];
+    this.version = protocolData[5];
+  }
+
+  @Override
+  public String toString() {
+    return this.method + " " +
+        this.sourceEmail + " " +
+        this.sourceHost + " " +
+        this.destinationEmail + " " +
+        this.destinationHost + " " +
+        this.version + "\r\n";
   }
 
 }
