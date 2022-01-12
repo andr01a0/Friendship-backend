@@ -1,5 +1,6 @@
 package com.instantcoffee.tech.authentication;
 
+import com.instantcoffee.tech.entities.User;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

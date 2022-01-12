@@ -1,5 +1,4 @@
 package com.instantcoffee.tech.entities;
-import com.instantcoffee.tech.authentication.User;
 
 import javax.persistence.*;
 

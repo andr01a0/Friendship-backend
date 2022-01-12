@@ -1,4 +1,4 @@
-package com.instantcoffee.tech.authentication;
+package com.instantcoffee.tech.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.instantcoffee.tech.entities.Relationship;
@@ -40,6 +40,10 @@ public class User implements UserDetails {
   @JsonIgnore
   @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
   List<Relationship> relationships;
+
+  /*
+   * Security related methods
+   */
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

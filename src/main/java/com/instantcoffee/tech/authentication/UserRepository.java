@@ -1,5 +1,6 @@
 package com.instantcoffee.tech.authentication;
 
+import com.instantcoffee.tech.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

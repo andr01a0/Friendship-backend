@@ -1,5 +1,6 @@
 package com.instantcoffee.tech.authentication;
 
+import com.instantcoffee.tech.entities.User;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
