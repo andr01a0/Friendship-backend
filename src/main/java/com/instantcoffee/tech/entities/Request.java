@@ -31,7 +31,11 @@ public class Request {
         getSourceHost() + " " +
         getDestinationEmail() + " " +
         getDestinationHost() + " " +
-        getVersion() + "\r\n";
+        getVersion();
+  }
+
+  public String toJson() {
+    return "{\"request\": \""+toString()+"\\r\\n\"}";
   }
 
 }

@@ -17,7 +17,11 @@ public class Response {
   public String toString() {
     return getVersion() + " " +
         getStatusCode() + " " +
-        getPhrase() + "\r\n";
+        getPhrase();
+  }
+
+  public String toJson() {
+    return "{\"response\": \""+toString()+"\\r\\n\"}";
   }
 
 }
