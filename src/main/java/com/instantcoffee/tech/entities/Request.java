@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class FriendshipProtocol {
+public class Request {
 
   private String method;
   private String sourceEmail;
@@ -14,7 +14,7 @@ public class FriendshipProtocol {
   private String destinationHost;
   private String version;
 
-  public FriendshipProtocol(String friendshipProtocol) {
+  public Request(String friendshipProtocol) {
     String[] protocolData = friendshipProtocol.split("\\s+");
     this.method = protocolData[0];
     this.sourceEmail = protocolData[1];

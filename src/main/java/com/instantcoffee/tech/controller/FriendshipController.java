@@ -1,6 +1,6 @@
 package com.instantcoffee.tech.controller;
 
-import com.instantcoffee.tech.entities.FriendshipProtocol;
+import com.instantcoffee.tech.entities.Request;
 import com.instantcoffee.tech.entities.Response;
 import com.instantcoffee.tech.service.RelationshipService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +18,9 @@ public class FriendshipController {
   RelationshipService relationshipService;
 
   @PostMapping
-  public ResponseEntity<String> relationshipProtocol(@RequestBody String protocolBody) {
-    FriendshipProtocol friendshipProtocol = new FriendshipProtocol(protocolBody);
-    Response response = relationshipService.process(friendshipProtocol);
+  public ResponseEntity<String> friendshipProtocol(@RequestBody String protocolBody) {
+    Request request = new Request(protocolBody);
+    Response response = relationshipService.process(request);
     return ResponseEntity.ok(response.toString());
   }
 
