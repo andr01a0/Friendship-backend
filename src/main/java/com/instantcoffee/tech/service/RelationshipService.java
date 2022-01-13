@@ -15,7 +15,7 @@ public class RelationshipService {
     RelationshipRepo relationshipRepo;
 
     public Response process(Request request) {
-        return new Response(request.getVersion(), 200, "Response Message");
+        return new Response(request.getVersion(), 200,"Response Message");
     }
 
 }
