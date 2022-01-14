@@ -26,8 +26,7 @@ public class FriendshipController {
     ObjectMapper mapper = new ObjectMapper();
     ProtocolBody protocolBody = mapper.readValue(requestJson, ProtocolBody.class);
     Request request = new Request(protocolBody.getRequest());
-    Response response = relationshipService.process(request);
-    return ResponseEntity.ok(response.toJson());
+    return ResponseEntity.ok(relationshipService.process(request));
   }
 
 }

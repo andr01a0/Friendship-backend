@@ -14,8 +14,8 @@ public class RelationshipService {
     @Autowired
     RelationshipRepo relationshipRepo;
 
-    public Response process(Request request) {
-        return new Response(request.getVersion(), 200,"Response Message");
+    public String process(Request request) {
+        return "";
     }
 
 }
