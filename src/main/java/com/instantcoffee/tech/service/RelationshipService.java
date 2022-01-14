@@ -23,23 +23,23 @@ public class RelationshipService {
     @Autowired
     RelationshipRepo relationshipRepo;
 
-    public void addFriend() {
+    private void addFriend() {
 
     }
 
-    public void acceptFriend() {
+    private void acceptFriend() {
 
     }
 
-    public void denyFriend() {
+    private void denyFriend() {
 
     }
 
-    public void removeFriend() {
+    private void removeFriend() {
 
     }
 
-    public void blockFriend() {
+    private void blockFriend() {
 
     }
 
