@@ -1,7 +1,9 @@
 package com.instantcoffee.tech.service;
 
+import com.instantcoffee.tech.entities.Relationship;
 import com.instantcoffee.tech.entities.Request;
 import com.instantcoffee.tech.entities.Response;
+import com.instantcoffee.tech.entities.User;
 import com.instantcoffee.tech.repo.RelationshipRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,27 +25,36 @@ public class RelationshipService {
     @Autowired
     RelationshipRepo relationshipRepo;
 
-    private void addFriend() {
+    private void addFriend(Request request, User user) {
+        Relationship relCheck = relationshipRepo.findByUserAndFriendEmailAndFriendHost(user, request.getSourceEmail(), request.getSourceHost())
+            .orElse(null);
+        if(relCheck == null) {
+            Relationship relationship = new Relationship();
+            relationship.setFriendEmail(request.getSourceEmail());
+            relationship.setFriendHost(request.getSourceHost());
+            relationship.setUser(user);
+            relationship.setType("Pending");
+            relationshipRepo.save(relationship);
+        }
+    }
+
+    private void acceptFriend(Request request, User user) {
 
     }
 
-    private void acceptFriend() {
+    private void denyFriend(Request request, User user) {
 
     }
 
-    private void denyFriend() {
+    private void removeFriend(Request request, User user) {
 
     }
 
-    private void removeFriend() {
+    private void blockFriend(Request request, User user) {
 
     }
 
-    private void blockFriend() {
-
-    }
-
-    public Response process(Request request) throws IOException {
+    public Response process(Request request, User user) throws IOException {
         // get the external IP of this server
         URL whatIsMyIp = new URL("http://checkip.amazonaws.com");
         BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -55,24 +66,26 @@ public class RelationshipService {
         if(request.getDestinationHost().equals(myIp)) {
             switch (request.getMethod()) {
                 case "Add":
-                    addFriend();
+                    addFriend(request, user);
                     break;
                 case "Accept":
-                    acceptFriend();
+                    acceptFriend(request, user);
                     break;
                 case "Deny":
-                    denyFriend();
+                    denyFriend(request, user);
                     break;
                 case "Remove":
-                    removeFriend();
+                    removeFriend(request, user);
                     break;
                 case "Block":
-                    blockFriend();
+                    blockFriend(request, user);
                     break;
+                default:
+                    return new Response(request.getVersion(), 500, "Method not allowed.");
             }
         } else {
             WebClient webClient = WebClient.builder()
-                .baseUrl("http://"+request.getDestinationHost())
+                .baseUrl("http://"+request.getDestinationHost()+"/friendship")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
 
