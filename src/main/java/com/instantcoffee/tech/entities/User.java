@@ -24,19 +24,19 @@ public class User implements UserDetails {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "user_id")
-  private Long id;
+  private long id;
 
   @Column(name = "username")
   @NonNull
   private String username;
 
-  @Column
+  @Column(name = "password")
   @NonNull
   private String password;
 
   @JsonIgnore
   @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-  List<Friendship> friendships;
+  private List<Friendship> friendships;
 
   /*
    * Security related methods

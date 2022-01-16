@@ -9,6 +9,6 @@ import lombok.Setter;
 public class ProtocolBody {
 
   @JsonProperty("request")
-  public String request;
+  private String request;
 
 }
