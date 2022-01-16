@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Relationship {
+public class Friendship {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int relationshipId;

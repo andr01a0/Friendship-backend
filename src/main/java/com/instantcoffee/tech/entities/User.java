@@ -1,7 +1,6 @@
 package com.instantcoffee.tech.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.instantcoffee.tech.entities.Relationship;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -12,9 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @RequiredArgsConstructor
@@ -39,7 +36,7 @@ public class User implements UserDetails {
 
   @JsonIgnore
   @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-  List<Relationship> relationships;
+  List<Friendship> friendships;
 
   /*
    * Security related methods

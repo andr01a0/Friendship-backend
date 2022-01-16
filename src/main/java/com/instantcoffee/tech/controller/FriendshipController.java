@@ -5,7 +5,7 @@ import com.instantcoffee.tech.entities.ProtocolBody;
 import com.instantcoffee.tech.entities.Request;
 import com.instantcoffee.tech.entities.Response;
 import com.instantcoffee.tech.entities.User;
-import com.instantcoffee.tech.service.RelationshipService;
+import com.instantcoffee.tech.service.FriendshipService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,7 +22,7 @@ import java.io.IOException;
 public class FriendshipController {
 
   @Autowired
-  RelationshipService relationshipService;
+  FriendshipService friendshipService;
 
   @PostMapping
   public ResponseEntity<String> friendshipProtocol(@AuthenticationPrincipal User user,
@@ -31,7 +31,7 @@ public class FriendshipController {
     ObjectMapper mapper = new ObjectMapper();
     ProtocolBody protocolBody = mapper.readValue(requestJson, ProtocolBody.class);
     Request request = new Request(protocolBody.getRequest());
-    Response response = relationshipService.process(request, user);
+    Response response = friendshipService.process(request, user);
     return ResponseEntity.ok(response.toJson());
   }
 

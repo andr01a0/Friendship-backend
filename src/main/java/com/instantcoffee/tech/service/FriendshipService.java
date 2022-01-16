@@ -1,10 +1,10 @@
 package com.instantcoffee.tech.service;
 
-import com.instantcoffee.tech.entities.Relationship;
+import com.instantcoffee.tech.entities.Friendship;
 import com.instantcoffee.tech.entities.Request;
 import com.instantcoffee.tech.entities.Response;
 import com.instantcoffee.tech.entities.User;
-import com.instantcoffee.tech.repo.RelationshipRepo;
+import com.instantcoffee.tech.repo.FriendshipRepo;
 import com.instantcoffee.tech.repo.UserRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,91 +21,91 @@ import java.net.URL;
 
 @Service
 @AllArgsConstructor
-public class RelationshipService {
+public class FriendshipService {
 
     @Autowired
-    RelationshipRepo relationshipRepo;
+    FriendshipRepo friendshipRepo;
 
     @Autowired
     UserRepo userRepo;
 
     private void addFriend(Request request, User user) {
-        Relationship relationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+        Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
             user, request.getDestinationEmail(), request.getDestinationHost()
         ).orElse(null);
-        Relationship reverseRelationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+        Friendship reverseFriendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
             user, request.getSourceEmail(), request.getSourceHost()
         ).orElse(null);
 
-        if(relationship == null && reverseRelationship == null) {
-            Relationship newRelationship = new Relationship();
-            newRelationship.setFriendEmail(request.getSourceEmail());
-            newRelationship.setFriendHost(request.getSourceHost());
-            newRelationship.setUser(user);
-            newRelationship.setType("Pending");
-            relationshipRepo.save(newRelationship);
+        if(friendship == null && reverseFriendship == null) {
+            Friendship newFriendship = new Friendship();
+            newFriendship.setFriendEmail(request.getSourceEmail());
+            newFriendship.setFriendHost(request.getSourceHost());
+            newFriendship.setUser(user);
+            newFriendship.setType("Pending");
+            friendshipRepo.save(newFriendship);
         }
     }
 
     private void acceptFriend(Request request, User user) {
-        Relationship relationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+        Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
             user, request.getDestinationEmail(), request.getDestinationHost()
         ).orElse(null);
-        Relationship reverseRelationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+        Friendship reverseFriendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
             user, request.getSourceEmail(), request.getSourceHost()
         ).orElse(null);
 
-        if(relationship != null && relationship.getType().equals("Pending")) {
-            relationship.setType("Friend");
-            relationshipRepo.save(relationship);
-        } else if(reverseRelationship != null && reverseRelationship.getType().equals("Pending")) {
-            reverseRelationship.setType("Friend");
-            relationshipRepo.save(reverseRelationship);
+        if(friendship != null && friendship.getType().equals("Pending")) {
+            friendship.setType("Friends");
+            friendshipRepo.save(friendship);
+        } else if(reverseFriendship != null && reverseFriendship.getType().equals("Pending")) {
+            reverseFriendship.setType("Friends");
+            friendshipRepo.save(reverseFriendship);
         }
     }
 
     private void denyFriend(Request request, User user) {
-        Relationship relationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+        Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
             user, request.getDestinationEmail(), request.getDestinationHost()
         ).orElse(null);
-        Relationship reverseRelationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+        Friendship reverseFriendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
             user, request.getSourceEmail(), request.getSourceHost()
         ).orElse(null);
 
-        if(relationship != null && relationship.getType().equals("Pending"))
-            relationshipRepo.delete(relationship);
-        else if(reverseRelationship != null && reverseRelationship.getType().equals("Pending"))
-            relationshipRepo.delete(reverseRelationship);
+        if(friendship != null && friendship.getType().equals("Pending"))
+            friendshipRepo.delete(friendship);
+        else if(reverseFriendship != null && reverseFriendship.getType().equals("Pending"))
+            friendshipRepo.delete(reverseFriendship);
     }
 
     private void removeFriend(Request request, User user) {
-        Relationship relationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+        Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
             user, request.getDestinationEmail(), request.getDestinationHost()
         ).orElse(null);
-        Relationship reverseRelationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+        Friendship reverseFriendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
             user, request.getSourceEmail(), request.getSourceHost()
         ).orElse(null);
 
-        if(relationship != null)
-            relationshipRepo.delete(relationship);
-        else if(reverseRelationship != null)
-            relationshipRepo.delete(reverseRelationship);
+        if(friendship != null && friendship.getType().equals("Friends"))
+            friendshipRepo.delete(friendship);
+        else if(reverseFriendship != null && reverseFriendship.getType().equals("Friends"))
+            friendshipRepo.delete(reverseFriendship);
     }
 
     private void blockFriend(Request request, User user) {
-        Relationship relationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+        Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
             user, request.getDestinationEmail(), request.getDestinationHost()
         ).orElse(null);
-        Relationship reverseRelationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+        Friendship reverseFriendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
             user, request.getSourceEmail(), request.getSourceHost()
         ).orElse(null);
 
-        if(relationship != null) {
-            relationship.setType("Blocked");
-            relationshipRepo.save(relationship);
-        } else if(reverseRelationship != null) {
-            reverseRelationship.setType("Blocked");
-            relationshipRepo.save(reverseRelationship);
+        if(friendship != null) {
+            friendship.setType("Blocked");
+            friendshipRepo.save(friendship);
+        } else if(reverseFriendship != null) {
+            reverseFriendship.setType("Blocked");
+            friendshipRepo.save(reverseFriendship);
         }
     }
 
