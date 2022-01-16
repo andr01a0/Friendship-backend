@@ -5,6 +5,7 @@ import com.instantcoffee.tech.entities.Request;
 import com.instantcoffee.tech.entities.Response;
 import com.instantcoffee.tech.entities.User;
 import com.instantcoffee.tech.repo.RelationshipRepo;
+import com.instantcoffee.tech.repo.UserRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -25,33 +26,87 @@ public class RelationshipService {
     @Autowired
     RelationshipRepo relationshipRepo;
 
+    @Autowired
+    UserRepo userRepo;
+
     private void addFriend(Request request, User user) {
-        Relationship relCheck = relationshipRepo.findByUserAndFriendEmailAndFriendHost(user, request.getSourceEmail(), request.getSourceHost())
-            .orElse(null);
-        if(relCheck == null) {
-            Relationship relationship = new Relationship();
-            relationship.setFriendEmail(request.getSourceEmail());
-            relationship.setFriendHost(request.getSourceHost());
-            relationship.setUser(user);
-            relationship.setType("Pending");
-            relationshipRepo.save(relationship);
+        Relationship relationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+            user, request.getDestinationEmail(), request.getDestinationHost()
+        ).orElse(null);
+        Relationship reverseRelationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+            user, request.getSourceEmail(), request.getSourceHost()
+        ).orElse(null);
+
+        if(relationship == null && reverseRelationship == null) {
+            Relationship newRelationship = new Relationship();
+            newRelationship.setFriendEmail(request.getSourceEmail());
+            newRelationship.setFriendHost(request.getSourceHost());
+            newRelationship.setUser(user);
+            newRelationship.setType("Pending");
+            relationshipRepo.save(newRelationship);
         }
     }
 
     private void acceptFriend(Request request, User user) {
+        Relationship relationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+            user, request.getDestinationEmail(), request.getDestinationHost()
+        ).orElse(null);
+        Relationship reverseRelationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+            user, request.getSourceEmail(), request.getSourceHost()
+        ).orElse(null);
 
+        if(relationship != null && relationship.getType().equals("Pending")) {
+            relationship.setType("Friend");
+            relationshipRepo.save(relationship);
+        } else if(reverseRelationship != null && reverseRelationship.getType().equals("Pending")) {
+            reverseRelationship.setType("Friend");
+            relationshipRepo.save(reverseRelationship);
+        }
     }
 
     private void denyFriend(Request request, User user) {
+        Relationship relationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+            user, request.getDestinationEmail(), request.getDestinationHost()
+        ).orElse(null);
+        Relationship reverseRelationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+            user, request.getSourceEmail(), request.getSourceHost()
+        ).orElse(null);
 
+        if(relationship != null && relationship.getType().equals("Pending"))
+            relationshipRepo.delete(relationship);
+        else if(reverseRelationship != null && reverseRelationship.getType().equals("Pending"))
+            relationshipRepo.delete(reverseRelationship);
     }
 
     private void removeFriend(Request request, User user) {
+        Relationship relationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+            user, request.getDestinationEmail(), request.getDestinationHost()
+        ).orElse(null);
+        Relationship reverseRelationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+            user, request.getSourceEmail(), request.getSourceHost()
+        ).orElse(null);
 
+        if(relationship != null)
+            relationshipRepo.delete(relationship);
+        else if(reverseRelationship != null)
+            relationshipRepo.delete(reverseRelationship);
     }
 
     private void blockFriend(Request request, User user) {
+        Relationship relationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+            user, request.getDestinationEmail(), request.getDestinationHost()
+        ).orElse(null);
+        Relationship reverseRelationship = relationshipRepo.findByUserAndFriendEmailAndFriendHost(
+            user, request.getSourceEmail(), request.getSourceHost()
+        ).orElse(null);
 
+        if(relationship != null) {
+            relationship.setType("Blocked");
+            relationshipRepo.save(relationship);
+        } else if(reverseRelationship != null) {
+            reverseRelationship.setType("Blocked");
+            relationshipRepo.save(reverseRelationship);
+        }
     }
 
     public Response process(Request request, User user) throws IOException {
@@ -62,8 +117,18 @@ public class RelationshipService {
 
         // add the port to the IP
         String myIp = in.readLine() + ":" + System.getenv("PORT");
+        // String myIp = "localhost" + ":" + System.getenv("PORT");
+
+        // check if the user has access to process the request
+        if(!user.getUsername().equals(request.getSourceEmail()))
+            return new Response(request.getVersion(), 530, "Access denied");
 
         if(request.getDestinationHost().equals(myIp)) {
+            // check if username is valid in the server
+            User friend = userRepo.findByUsername(request.getDestinationEmail()).orElse(null);
+            if(friend == null)
+                return new Response(request.getVersion(), 501, "Username is not a valid user");
+
             switch (request.getMethod()) {
                 case "Add":
                     addFriend(request, user);

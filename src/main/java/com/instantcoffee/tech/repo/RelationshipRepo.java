@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface RelationshipRepo extends JpaRepository<Relationship,Integer> {
 
-  public Optional<Relationship> findByUserAndFriendEmailAndFriendHost(User user, String friendEmail, String friendHost);
+  Optional<Relationship> findByUserAndFriendEmailAndFriendHost(User user, String friendEmail, String friendHost);
 
 }

@@ -1,7 +1,7 @@
 package com.instantcoffee.tech.authentication;
 
 import com.instantcoffee.tech.entities.User;
-import com.instantcoffee.tech.repo.UserRepository;
+import com.instantcoffee.tech.repo.UserRepo;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,13 +13,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
 
-  private final UserRepository userRepository;
+  private final UserRepo userRepository;
   private final JwtTokenUtil jwtTokenUtil;
   private final PasswordEncoder passwordEncoder;
 
   @Override
   public User loadUserByUsername(String username) {
-    return this.userRepository.findByUsername(username);
+    return this.userRepository.findByUsername(username).orElse(null);
   }
 
   public User signUp(String username, String password) {

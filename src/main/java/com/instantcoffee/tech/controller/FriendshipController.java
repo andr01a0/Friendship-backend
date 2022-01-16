@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @RestController
@@ -25,8 +26,8 @@ public class FriendshipController {
 
   @PostMapping
   public ResponseEntity<String> friendshipProtocol(@AuthenticationPrincipal User user,
-                                                   @RequestBody String requestJson) throws IOException {
-    System.out.println(user);
+                                                   @RequestBody String requestJson, HttpServletRequest clientInfo) throws IOException {
+    System.out.println(clientInfo.getLocalAddr());
     ObjectMapper mapper = new ObjectMapper();
     ProtocolBody protocolBody = mapper.readValue(requestJson, ProtocolBody.class);
     Request request = new Request(protocolBody.getRequest());
