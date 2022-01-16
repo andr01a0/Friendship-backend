@@ -17,8 +17,8 @@ public class Friendship {
     @Column(name = "friendship_id")
     private long id;
 
-    @Column(name = "type")
-    private String type;
+    @Column(name = "status")
+    private String status;
 
     @Column(name = "friend_email")
     private String friendEmail;

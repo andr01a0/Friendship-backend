@@ -27,11 +27,10 @@ public class FriendshipController {
   @PostMapping
   public ResponseEntity<String> friendshipProtocol(@AuthenticationPrincipal User user,
                                                    @RequestBody String requestJson, HttpServletRequest clientInfo) throws IOException {
-    System.out.println(clientInfo.getLocalAddr());
     ObjectMapper mapper = new ObjectMapper();
     ProtocolBody protocolBody = mapper.readValue(requestJson, ProtocolBody.class);
     Request request = new Request(protocolBody.getRequest());
-    Response response = friendshipService.process(request, user);
+    Response response = friendshipService.process(request, user, clientInfo.getRemoteAddr());
     return ResponseEntity.ok(response.toJson());
   }
 

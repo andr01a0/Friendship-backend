@@ -43,7 +43,7 @@ public class FriendshipService {
             newFriendship.setFriendEmail(request.getSourceEmail());
             newFriendship.setFriendHost(request.getSourceHost());
             newFriendship.setUser(user);
-            newFriendship.setType("Pending");
+            newFriendship.setStatus("Pending");
             friendshipRepo.save(newFriendship);
         }
     }
@@ -56,11 +56,11 @@ public class FriendshipService {
             user, request.getSourceEmail(), request.getSourceHost()
         ).orElse(null);
 
-        if(friendship != null && friendship.getType().equals("Pending")) {
-            friendship.setType("Friends");
+        if(friendship != null && friendship.getStatus().equals("Pending")) {
+            friendship.setStatus("Friends");
             friendshipRepo.save(friendship);
-        } else if(reverseFriendship != null && reverseFriendship.getType().equals("Pending")) {
-            reverseFriendship.setType("Friends");
+        } else if(reverseFriendship != null && reverseFriendship.getStatus().equals("Pending")) {
+            reverseFriendship.setStatus("Friends");
             friendshipRepo.save(reverseFriendship);
         }
     }
@@ -73,9 +73,9 @@ public class FriendshipService {
             user, request.getSourceEmail(), request.getSourceHost()
         ).orElse(null);
 
-        if(friendship != null && friendship.getType().equals("Pending"))
+        if(friendship != null && friendship.getStatus().equals("Pending"))
             friendshipRepo.delete(friendship);
-        else if(reverseFriendship != null && reverseFriendship.getType().equals("Pending"))
+        else if(reverseFriendship != null && reverseFriendship.getStatus().equals("Pending"))
             friendshipRepo.delete(reverseFriendship);
     }
 
@@ -87,9 +87,9 @@ public class FriendshipService {
             user, request.getSourceEmail(), request.getSourceHost()
         ).orElse(null);
 
-        if(friendship != null && friendship.getType().equals("Friends"))
+        if(friendship != null && friendship.getStatus().equals("Friends"))
             friendshipRepo.delete(friendship);
-        else if(reverseFriendship != null && reverseFriendship.getType().equals("Friends"))
+        else if(reverseFriendship != null && reverseFriendship.getStatus().equals("Friends"))
             friendshipRepo.delete(reverseFriendship);
     }
 
@@ -102,29 +102,30 @@ public class FriendshipService {
         ).orElse(null);
 
         if(friendship != null) {
-            friendship.setType("Blocked");
+            friendship.setStatus("Blocked");
             friendshipRepo.save(friendship);
         } else if(reverseFriendship != null) {
-            reverseFriendship.setType("Blocked");
+            reverseFriendship.setStatus("Blocked");
             friendshipRepo.save(reverseFriendship);
         }
     }
 
-    public Response process(Request request, User user) throws IOException {
+    public Response process(Request request, User user, String origin) throws IOException {
         // get the external IP of this server
         URL whatIsMyIp = new URL("http://checkip.amazonaws.com");
         BufferedReader in = new BufferedReader(new InputStreamReader(
             whatIsMyIp.openStream()));
 
         // add the port to the IP
-        String myIp = in.readLine() + ":" + System.getenv("PORT");
-        // String myIp = "localhost" + ":" + System.getenv("PORT");
+        String myIp = in.readLine();
+        // String myIp = "127.0.0.1";
 
         // check if the user has access to process the request
-        if(!user.getUsername().equals(request.getSourceEmail()))
-            return new Response(request.getVersion(), 530, "Access denied");
+        if(!origin.equals(request.getSourceHost().split(":")[0]))
+            if(!user.getUsername().equals(request.getSourceEmail()))
+                return new Response(request.getVersion(), 530, "Access denied");
 
-        if(request.getDestinationHost().equals(myIp)) {
+        if(request.getDestinationHost().equals(myIp.concat(":").concat(System.getenv("PORT")))) {
             // check if username is valid in the server
             User friend = userRepo.findByUsername(request.getDestinationEmail()).orElse(null);
             if(friend == null)
@@ -155,7 +156,9 @@ public class FriendshipService {
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
             friendlyServerRepo.findByHost(request.getDestinationHost()).ifPresent(
-                friendlyServer -> webClientBuilder.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + friendlyServer.getJwtToken())
+                friendlyServer -> webClientBuilder.defaultHeader(
+                    HttpHeaders.AUTHORIZATION, "Bearer " + friendlyServer.getJwtToken()
+                )
             );
             WebClient webClient = webClientBuilder.build();
 
@@ -164,6 +167,7 @@ public class FriendshipService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
+            System.out.println(response);
         }
         return new Response(request.getVersion(), 200, "Success");
     }
