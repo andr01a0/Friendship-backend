@@ -18,6 +18,9 @@ public class FriendlyServer {
   @Column(name = "friendly_server_id")
   private long id;
 
+  @Column(name = "host")
+  private String host;
+
   @Column(name = "jwt_token")
   private String jwtToken;
 

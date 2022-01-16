@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 
-public interface FriendshipRepo extends JpaRepository<Friendship,Integer> {
+public interface FriendshipRepo extends JpaRepository<Friendship, Long> {
 
   Optional<Friendship> findByUserAndFriendEmailAndFriendHost(User user, String friendEmail, String friendHost);
 

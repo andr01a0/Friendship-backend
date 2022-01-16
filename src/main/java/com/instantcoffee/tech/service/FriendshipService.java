@@ -1,9 +1,7 @@
 package com.instantcoffee.tech.service;
 
-import com.instantcoffee.tech.entities.Friendship;
-import com.instantcoffee.tech.entities.Request;
-import com.instantcoffee.tech.entities.Response;
-import com.instantcoffee.tech.entities.User;
+import com.instantcoffee.tech.entities.*;
+import com.instantcoffee.tech.repo.FriendlyServerRepo;
 import com.instantcoffee.tech.repo.FriendshipRepo;
 import com.instantcoffee.tech.repo.UserRepo;
 import lombok.AllArgsConstructor;
@@ -28,6 +26,9 @@ public class FriendshipService {
 
     @Autowired
     UserRepo userRepo;
+
+    @Autowired
+    FriendlyServerRepo friendlyServerRepo;
 
     private void addFriend(Request request, User user) {
         Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
@@ -149,10 +150,15 @@ public class FriendshipService {
                     return new Response(request.getVersion(), 500, "Method not allowed.");
             }
         } else {
-            WebClient webClient = WebClient.builder()
-                .baseUrl("http://"+request.getDestinationHost()+"/friendship")
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .build();
+            WebClient.Builder webClientBuilder = WebClient.builder()
+                .baseUrl("http://" + request.getDestinationHost() + "/friendship")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+
+            FriendlyServer friendlyServer = friendlyServerRepo.findByHost(request.getDestinationHost()).orElse(null);
+            if(friendlyServer != null) {
+                webClientBuilder.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer "+friendlyServer.getJwtToken());
+            }
+            WebClient webClient = webClientBuilder.build();
 
             String response = webClient.post()
                 .body(Mono.just(request.toJson()), String.class)
