@@ -154,10 +154,9 @@ public class FriendshipService {
                 .baseUrl("http://" + request.getDestinationHost() + "/friendship")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
-            FriendlyServer friendlyServer = friendlyServerRepo.findByHost(request.getDestinationHost()).orElse(null);
-            if(friendlyServer != null) {
-                webClientBuilder.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer "+friendlyServer.getJwtToken());
-            }
+            friendlyServerRepo.findByHost(request.getDestinationHost()).ifPresent(
+                friendlyServer -> webClientBuilder.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + friendlyServer.getJwtToken())
+            );
             WebClient webClient = webClientBuilder.build();
 
             String response = webClient.post()
@@ -165,7 +164,6 @@ public class FriendshipService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-            System.out.println(response);
         }
         return new Response(request.getVersion(), 200, "Success");
     }
