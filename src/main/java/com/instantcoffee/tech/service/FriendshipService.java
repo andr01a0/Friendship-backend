@@ -1,5 +1,6 @@
 package com.instantcoffee.tech.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.instantcoffee.tech.entities.*;
 import com.instantcoffee.tech.repo.FriendlyServerRepo;
 import com.instantcoffee.tech.repo.FriendshipRepo;
@@ -30,146 +31,143 @@ public class FriendshipService {
     @Autowired
     FriendlyServerRepo friendlyServerRepo;
 
-    private void addFriend(Request request, User user) {
+    private void addFriend(Request request) {
+        User user = userRepo.findByUsername(request.getSourceEmail()).orElse(null);
         Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
             user, request.getDestinationEmail(), request.getDestinationHost()
         ).orElse(null);
-        Friendship reverseFriendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
-            user, request.getSourceEmail(), request.getSourceHost()
-        ).orElse(null);
 
-        if(friendship == null && reverseFriendship == null) {
+        if(friendship == null) {
             Friendship newFriendship = new Friendship();
-            newFriendship.setFriendEmail(request.getSourceEmail());
-            newFriendship.setFriendHost(request.getSourceHost());
+            newFriendship.setFriendEmail(request.getDestinationEmail());
+            newFriendship.setFriendHost(request.getDestinationHost());
             newFriendship.setUser(user);
             newFriendship.setStatus("Pending");
             friendshipRepo.save(newFriendship);
         }
     }
 
-    private void acceptFriend(Request request, User user) {
+    private void acceptFriend(Request request) {
         Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
-            user, request.getDestinationEmail(), request.getDestinationHost()
-        ).orElse(null);
-        Friendship reverseFriendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
-            user, request.getSourceEmail(), request.getSourceHost()
+            userRepo.findByUsername(request.getSourceEmail()).orElse(null),
+            request.getDestinationEmail(), request.getDestinationHost()
         ).orElse(null);
 
         if(friendship != null && friendship.getStatus().equals("Pending")) {
             friendship.setStatus("Friends");
             friendshipRepo.save(friendship);
-        } else if(reverseFriendship != null && reverseFriendship.getStatus().equals("Pending")) {
-            reverseFriendship.setStatus("Friends");
-            friendshipRepo.save(reverseFriendship);
         }
     }
 
-    private void denyFriend(Request request, User user) {
+    private void denyFriend(Request request) {
         Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
-            user, request.getDestinationEmail(), request.getDestinationHost()
-        ).orElse(null);
-        Friendship reverseFriendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
-            user, request.getSourceEmail(), request.getSourceHost()
+            userRepo.findByUsername(request.getSourceEmail()).orElse(null),
+            request.getDestinationEmail(), request.getDestinationHost()
         ).orElse(null);
 
         if(friendship != null && friendship.getStatus().equals("Pending"))
             friendshipRepo.delete(friendship);
-        else if(reverseFriendship != null && reverseFriendship.getStatus().equals("Pending"))
-            friendshipRepo.delete(reverseFriendship);
     }
 
-    private void removeFriend(Request request, User user) {
+    private void removeFriend(Request request) {
         Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
-            user, request.getDestinationEmail(), request.getDestinationHost()
-        ).orElse(null);
-        Friendship reverseFriendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
-            user, request.getSourceEmail(), request.getSourceHost()
+            userRepo.findByUsername(request.getSourceEmail()).orElse(null),
+            request.getDestinationEmail(), request.getDestinationHost()
         ).orElse(null);
 
         if(friendship != null && friendship.getStatus().equals("Friends"))
             friendshipRepo.delete(friendship);
-        else if(reverseFriendship != null && reverseFriendship.getStatus().equals("Friends"))
-            friendshipRepo.delete(reverseFriendship);
     }
 
-    private void blockFriend(Request request, User user) {
+    private void blockFriend(Request request) {
         Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
-            user, request.getDestinationEmail(), request.getDestinationHost()
-        ).orElse(null);
-        Friendship reverseFriendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
-            user, request.getSourceEmail(), request.getSourceHost()
+            userRepo.findByUsername(request.getSourceEmail()).orElse(null),
+            request.getDestinationEmail(), request.getDestinationHost()
         ).orElse(null);
 
         if(friendship != null) {
             friendship.setStatus("Blocked");
             friendshipRepo.save(friendship);
-        } else if(reverseFriendship != null) {
-            reverseFriendship.setStatus("Blocked");
-            friendshipRepo.save(reverseFriendship);
         }
     }
 
+    private Response executeRequest(Request request) {
+        switch (request.getMethod()) {
+            case "Add":
+                addFriend(request);
+                break;
+            case "Accept":
+                acceptFriend(request);
+                break;
+            case "Deny":
+                denyFriend(request);
+                break;
+            case "Remove":
+                removeFriend(request);
+                break;
+            case "Block":
+                blockFriend(request);
+                break;
+            default:
+                return new Response(request.getVersion(), 500, "Method not allowed.");
+        }
+        return new Response(request.getVersion(), 200, "Success");
+    }
+
     public Response process(Request request, User user, String origin) throws IOException {
-        // get the external IP of this server
-        URL whatIsMyIp = new URL("http://checkip.amazonaws.com");
-        BufferedReader in = new BufferedReader(new InputStreamReader(
-            whatIsMyIp.openStream()));
-
-        // add the port to the IP
-        String myIp = in.readLine();
-        // String myIp = "127.0.0.1";
-
-        // check if the user has access to process the request
-        if(!origin.equals(request.getSourceHost().split(":")[0]))
-            if(!user.getUsername().equals(request.getSourceEmail()))
-                return new Response(request.getVersion(), 530, "Access denied");
-
-        if(request.getDestinationHost().equals(myIp.concat(":").concat(System.getenv("PORT")))) {
+        // check if request came from a server
+        if(origin.equals(request.getSourceHost().split(":")[0])) {
             // check if username is valid in the server
             User friend = userRepo.findByUsername(request.getDestinationEmail()).orElse(null);
             if(friend == null)
                 return new Response(request.getVersion(), 501, "Username is not a valid user");
 
-            switch (request.getMethod()) {
-                case "Add":
-                    addFriend(request, user);
-                    break;
-                case "Accept":
-                    acceptFriend(request, user);
-                    break;
-                case "Deny":
-                    denyFriend(request, user);
-                    break;
-                case "Remove":
-                    removeFriend(request, user);
-                    break;
-                case "Block":
-                    blockFriend(request, user);
-                    break;
-                default:
-                    return new Response(request.getVersion(), 500, "Method not allowed.");
-            }
+            // swap source with destination user
+            String swap = request.getDestinationEmail();
+            request.setDestinationEmail(request.getSourceEmail());
+            request.setSourceEmail(swap);
+            swap = request.getDestinationHost();
+            request.setDestinationHost(request.getSourceHost());
+            request.setSourceHost(swap);
         } else {
-            WebClient.Builder webClientBuilder = WebClient.builder()
-                .baseUrl("http://" + request.getDestinationHost() + "/friendship")
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+            // check if the user has access to process the request
+            if(!user.getUsername().equals(request.getSourceEmail()))
+                return new Response(request.getVersion(), 530, "Access denied");
 
-            friendlyServerRepo.findByHost(request.getDestinationHost()).ifPresent(
-                friendlyServer -> webClientBuilder.defaultHeader(
-                    HttpHeaders.AUTHORIZATION, "Bearer " + friendlyServer.getJwtToken()
-                )
-            );
-            WebClient webClient = webClientBuilder.build();
+            // get the external IP of this server
+            /*URL whatIsMyIp = new URL("http://checkip.amazonaws.com");
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                whatIsMyIp.openStream()));
+            String myIp = in.readLine();*/
+            String myIp = "127.0.0.1";
 
-            String response = webClient.post()
-                .body(Mono.just(request.toJson()), String.class)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-            System.out.println(response);
+            // check if it needs to send to another server
+            if(!request.getDestinationHost().equals(myIp.concat(":").concat(System.getenv("PORT")))) {
+                WebClient.Builder webClientBuilder = WebClient.builder()
+                    .baseUrl("http://" + request.getDestinationHost() + "/friendship")
+                    .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+
+                friendlyServerRepo.findByHost(request.getDestinationHost()).ifPresent(
+                    friendlyServer -> webClientBuilder.defaultHeader(
+                        HttpHeaders.AUTHORIZATION, "Bearer " + friendlyServer.getJwtToken()
+                    )
+                );
+                WebClient webClient = webClientBuilder.build();
+
+                String responseString = webClient.post()
+                    .body(Mono.just(request.toJson()), String.class)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+                ObjectMapper mapper = new ObjectMapper();
+                ResponseJson responseJson = mapper.readValue(responseString, ResponseJson.class);
+                Response response = new Response(responseJson.getResponse());
+                if (response.getStatusCode() == 200)
+                    executeRequest(request);
+                return response;
+            }
         }
-        return new Response(request.getVersion(), 200, "Success");
+        return executeRequest(request);
     }
 
 }

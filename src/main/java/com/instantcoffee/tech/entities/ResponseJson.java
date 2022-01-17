@@ -6,9 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ProtocolBody {
+public class ResponseJson {
 
-  @JsonProperty("request")
-  private String request;
+  @JsonProperty("response")
+  private String response;
 
 }
