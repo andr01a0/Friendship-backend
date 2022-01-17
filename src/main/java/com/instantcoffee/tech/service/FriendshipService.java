@@ -29,11 +29,16 @@ public class FriendshipService {
     @Autowired
     FriendlyServerRepo friendlyServerRepo;
 
+    private  Friendship getFriendship(Request request) {
+        return friendshipRepo.findByUserAndFriendEmailAndFriendHost(
+            userRepo.findByUsername(request.getSourceEmail()).orElse(null),
+            request.getDestinationEmail(), request.getDestinationHost()
+        ).orElse(null);
+    }
+
     private void addFriend(Request request) {
         User user = userRepo.findByUsername(request.getSourceEmail()).orElse(null);
-        Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
-            user, request.getDestinationEmail(), request.getDestinationHost()
-        ).orElse(null);
+        Friendship friendship = getFriendship(request);
 
         if(friendship == null) {
             Friendship newFriendship = new Friendship();
@@ -47,10 +52,7 @@ public class FriendshipService {
     }
 
     private void acceptFriend(Request request) {
-        Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
-            userRepo.findByUsername(request.getSourceEmail()).orElse(null),
-            request.getDestinationEmail(), request.getDestinationHost()
-        ).orElse(null);
+        Friendship friendship = getFriendship(request);
 
         if(friendship != null && friendship.getStatus().equals("Pending")) {
             friendship.setStatus("Friends");
@@ -59,30 +61,21 @@ public class FriendshipService {
     }
 
     private void denyFriend(Request request) {
-        Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
-            userRepo.findByUsername(request.getSourceEmail()).orElse(null),
-            request.getDestinationEmail(), request.getDestinationHost()
-        ).orElse(null);
+        Friendship friendship = getFriendship(request);
 
         if(friendship != null && friendship.getStatus().equals("Pending"))
             friendshipRepo.delete(friendship);
     }
 
     private void removeFriend(Request request) {
-        Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
-            userRepo.findByUsername(request.getSourceEmail()).orElse(null),
-            request.getDestinationEmail(), request.getDestinationHost()
-        ).orElse(null);
+        Friendship friendship = getFriendship(request);
 
         if(friendship != null && friendship.getStatus().equals("Friends"))
             friendshipRepo.delete(friendship);
     }
 
     private void blockFriend(Request request) {
-        Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
-            userRepo.findByUsername(request.getSourceEmail()).orElse(null),
-            request.getDestinationEmail(), request.getDestinationHost()
-        ).orElse(null);
+        Friendship friendship = getFriendship(request);
 
         if(friendship != null) {
             friendship.setStatus("Blocked");
@@ -130,10 +123,9 @@ public class FriendshipService {
             request.setSourceHost(swap);
         } else {
             // if Accept or Deny, verify if it is allowed
-            if((request.getMethod().equals("Accept") ||
-                request.getMethod().equals("Deny")) &&
-                !request.getSourceEmail().equals(request.getTarget()))
-                return new Response(request.getVersion(), 530, "Access denied");
+            if(request.getMethod().equals("Accept") || request.getMethod().equals("Deny"))
+                if(getFriendship(request).getTarget().equals(request.getSourceEmail()))
+                    return new Response(request.getVersion(), 530, "Access denied");
 
             // check if the user has access to process the request
             if(!user.getUsername().equals(request.getSourceEmail()))
