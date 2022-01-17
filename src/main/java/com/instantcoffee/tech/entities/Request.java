@@ -10,6 +10,7 @@ public class Request {
   private String method;
   private String sourceEmail;
   private String sourceHost;
+  private String target;
   private String destinationEmail;
   private String destinationHost;
   private String version;
@@ -19,6 +20,7 @@ public class Request {
     this.method = protocolData[0];
     this.sourceEmail = protocolData[1];
     this.sourceHost = protocolData[2];
+    this.target = protocolData[3];
     this.destinationEmail = protocolData[3];
     this.destinationHost = protocolData[4];
     this.version = protocolData[5];

@@ -26,6 +26,9 @@ public class Friendship {
     @Column(name = "friend_host")
     private String friendHost;
 
+    @Column(name = "target")
+    private String target;
+
     @ManyToOne
     @JoinColumn(name = "userId")
     private User user;

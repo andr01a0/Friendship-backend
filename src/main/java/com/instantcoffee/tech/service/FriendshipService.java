@@ -40,6 +40,7 @@ public class FriendshipService {
             newFriendship.setFriendEmail(request.getDestinationEmail());
             newFriendship.setFriendHost(request.getDestinationHost());
             newFriendship.setUser(user);
+            newFriendship.setTarget(request.getTarget());
             newFriendship.setStatus("Pending");
             friendshipRepo.save(newFriendship);
         }
@@ -128,6 +129,12 @@ public class FriendshipService {
             request.setDestinationHost(request.getSourceHost());
             request.setSourceHost(swap);
         } else {
+            // if Accept or Deny, verify if it is allowed
+            if((request.getMethod().equals("Accept") ||
+                request.getMethod().equals("Deny")) &&
+                !request.getSourceEmail().equals(request.getTarget()))
+                return new Response(request.getVersion(), 530, "Access denied");
+
             // check if the user has access to process the request
             if(!user.getUsername().equals(request.getSourceEmail()))
                 return new Response(request.getVersion(), 530, "Access denied");
@@ -161,7 +168,7 @@ public class FriendshipService {
                 ResponseJson responseJson = mapper.readValue(responseString, ResponseJson.class);
                 Response response = new Response(responseJson.getResponse());
                 if (response.getStatusCode() == 200)
-                    executeRequest(request);
+                    return executeRequest(request);
                 return response;
             }
         }
