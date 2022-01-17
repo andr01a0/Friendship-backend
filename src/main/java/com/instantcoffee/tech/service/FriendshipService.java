@@ -124,7 +124,7 @@ public class FriendshipService {
         } else {
             // if Accept or Deny, verify if it is allowed
             if(request.getMethod().equals("Accept") || request.getMethod().equals("Deny"))
-                if(getFriendship(request).getTarget().equals(request.getSourceEmail()))
+                if(!getFriendship(request).getTarget().equals(request.getSourceEmail()))
                     return new Response(request.getVersion(), 530, "Access denied");
 
             // check if the user has access to process the request
