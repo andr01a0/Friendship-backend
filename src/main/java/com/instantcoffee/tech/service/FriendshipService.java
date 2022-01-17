@@ -135,11 +135,11 @@ public class FriendshipService {
                 return new Response(request.getVersion(), 530, "Access denied");
 
             // get the external IP of this server
-            /*URL whatIsMyIp = new URL("http://checkip.amazonaws.com");
+            URL whatIsMyIp = new URL("http://checkip.amazonaws.com");
             BufferedReader in = new BufferedReader(new InputStreamReader(
                 whatIsMyIp.openStream()));
-            String myIp = in.readLine();*/
-            String myIp = "127.0.0.1";
+            String myIp = in.readLine();
+            //String myIp = "127.0.0.1";
 
             // check if it needs to send to another server
             if(!request.getDestinationHost().equals(myIp.concat(":").concat(System.getenv("PORT")))) {
