@@ -1,8 +1,8 @@
 package com.instantcoffee.tech.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.instantcoffee.tech.entities.RequestJson;
 import com.instantcoffee.tech.entities.Request;
+import com.instantcoffee.tech.entities.RequestJson;
 import com.instantcoffee.tech.entities.Response;
 import com.instantcoffee.tech.entities.User;
 import com.instantcoffee.tech.service.FriendshipService;

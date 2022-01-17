@@ -5,7 +5,6 @@ import com.instantcoffee.tech.entities.*;
 import com.instantcoffee.tech.repo.FriendlyServerRepo;
 import com.instantcoffee.tech.repo.FriendshipRepo;
 import com.instantcoffee.tech.repo.UserRepo;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,7 +18,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 
 @Service
-@AllArgsConstructor
 public class FriendshipService {
 
     @Autowired
