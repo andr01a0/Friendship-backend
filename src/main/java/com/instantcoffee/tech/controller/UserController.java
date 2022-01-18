@@ -24,4 +24,9 @@ public class UserController {
     return userService.findAllByUserAndStatus(user, status);
   }
 
+  @GetMapping
+  public String whoAmI(@AuthenticationPrincipal User user) {
+    return user.getUsername();
+  }
+
 }

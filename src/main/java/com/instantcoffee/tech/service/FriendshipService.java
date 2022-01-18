@@ -45,6 +45,7 @@ public class FriendshipService {
             newFriendship.setFriendEmail(request.getDestinationEmail());
             newFriendship.setFriendHost(request.getDestinationHost());
             newFriendship.setUser(user);
+            newFriendship.setUserHost(request.getSourceHost());
             newFriendship.setTarget(request.getTarget());
             newFriendship.setStatus("Pending");
             friendshipRepo.save(newFriendship);

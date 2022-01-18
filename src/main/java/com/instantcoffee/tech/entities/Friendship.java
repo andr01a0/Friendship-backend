@@ -1,6 +1,5 @@
 package com.instantcoffee.tech.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -31,8 +30,10 @@ public class Friendship {
     private String target;
 
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "userId")
     private User user;
+
+    @Column(name = "user_host")
+    private String userHost;
 
 }

@@ -32,6 +32,7 @@ public class User implements UserDetails {
 
   @Column(name = "password")
   @NonNull
+  @JsonIgnore
   private String password;
 
   @JsonIgnore
