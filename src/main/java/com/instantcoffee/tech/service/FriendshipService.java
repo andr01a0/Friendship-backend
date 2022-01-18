@@ -30,10 +30,16 @@ public class FriendshipService {
     FriendlyServerRepo friendlyServerRepo;
 
     private  Friendship getFriendship(Request request) {
-        return friendshipRepo.findByUserAndFriendEmailAndFriendHost(
+        Friendship friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
             userRepo.findByUsername(request.getSourceEmail()).orElse(null),
             request.getDestinationEmail(), request.getDestinationHost()
         ).orElse(null);
+        if(friendship == null)
+            friendship = friendshipRepo.findByUserAndFriendEmailAndFriendHost(
+                userRepo.findByUsername(request.getDestinationEmail()).orElse(null),
+                request.getSourceEmail(), request.getSourceHost()
+            ).orElse(null);
+        return friendship;
     }
 
     private void addFriend(Request request) {
