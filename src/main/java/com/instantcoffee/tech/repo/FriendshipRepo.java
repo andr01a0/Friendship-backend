@@ -12,6 +12,6 @@ public interface FriendshipRepo extends JpaRepository<Friendship, Long> {
 
   Optional<Friendship> findByUserAndFriendEmailAndFriendHost(User user, String friendEmail, String friendHost);
 
-  List<Friendship> findAllByUserAndStatus(User user, String status);
+  List<Friendship> findAllByUserOrTargetAndStatus(User user, String target, String status);
 
 }
