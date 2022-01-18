@@ -136,7 +136,8 @@ public class FriendshipService {
             BufferedReader in = new BufferedReader(new InputStreamReader(
                 whatIsMyIp.openStream()));
             String myIp = in.readLine();
-            //String myIp = "127.0.0.1";
+            if(request.getDestinationHost().equals("127.0.0.1:".concat(System.getenv("PORT"))))
+              myIp = "127.0.0.1";
 
             // check if it needs to send to another server
             if(!request.getDestinationHost().equals(myIp.concat(":").concat(System.getenv("PORT")))) {
