@@ -19,7 +19,7 @@ public class UserService {
   FriendshipRepo friendshipRepo;
 
   public List<Friendship> findAllByUserAndStatus(User user, String status) {
-    return friendshipRepo.findAllByUserOrTargetAndStatus(user, user.getUsername(), status);
+    return friendshipRepo.findAllByStatusAndUserOrTarget(status, user, user.getUsername());
   }
 
 }
